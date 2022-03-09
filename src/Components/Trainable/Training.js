@@ -3,12 +3,19 @@ import { Button, Divider, Paper, TextField, Typography } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-cpu";
 import "@tensorflow/tfjs-backend-webgl";
-
+import { data,browser } from "@tensorflow/tfjs";
 import { load } from "@tensorflow-models/mobilenet";
 import dog from "./dog.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { MODEL_ACTIONS } from "../../redux/ModelReducers";
 import { PREDICTIONS_ACTIONS } from "../../redux/PredictionsReducers";
+import Webcam from "react-webcam";
+
+const videoConstraints = {
+  width: 300,
+  height: 180,
+  facingMode: "user",
+};
 
 function Training() {
   const [inputValue, setInputValue] = useState({
@@ -18,8 +25,9 @@ function Training() {
   });
 
   const dispatch = useDispatch();
-  const model = useSelector((state) => state.model);
+  const { model, knnClassifier } = useSelector((state) => state.model);
   const imageRef = useRef();
+  const webcamRef = useRef(null);
 
   const [loading, setLoading] = useState(false);
 
@@ -31,12 +39,26 @@ function Training() {
 
   useEffect(() => {
     loadModel();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePrediction = async () => {
-    if (model) {
-      const predictions = await model.classify(imageRef.current);
-      dispatch({ type: PREDICTIONS_ACTIONS.LOAD, payload: predictions });
+    if (model && webcamRef) {
+      const webCam = await data.webcam(webcamRef.current);
+      const imgage = await browser.fromPixelsAsync(imageRef.current)
+      const img = await webCam.capture();
+      const activation2 = model.infer(imgage, true);
+      const activation = model.infer(img, true);
+
+      knnClassifier.addExample(activation, "dog");
+      knnClassifier.addExample(activation2, "dog1");
+
+      const activation1 = model.infer(imgage, "conv_preds");
+      const predictions = await knnClassifier.predictClass(activation1);
+      img.dispose();
+      // const predictions = await model.classify(imageRef.current);
+      console.log(predictions);
+      // dispatch({ type: PREDICTIONS_ACTIONS.LOAD, payload: predictions });
     }
   };
 
@@ -111,9 +133,19 @@ function Training() {
               onChange={handleChange}
               type="number"
               name="learningRate"
-            />
+            />{" "}
           </div>
-        )}
+        )}{" "}
+        <video
+          height={100}
+          ref={webcamRef}
+          autoPlay={true}
+          playsInline
+          loop
+          // screenshotFormat="image/jpeg"
+          width={200}
+          // videoConstraints={videoConstraints}
+        />
       </Paper>
       <img
         src={dog}

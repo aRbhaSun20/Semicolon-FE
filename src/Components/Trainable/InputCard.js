@@ -1,4 +1,4 @@
-import { Delete, Upload } from "@mui/icons-material";
+import { Camera, Delete, Upload, Clear } from "@mui/icons-material";
 import {
   IconButton,
   Paper,
@@ -6,20 +6,28 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
-import { FileDrop } from "react-file-drop";
+import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { INPUT_ACTIONS } from "../../redux/InputsReducers";
 
-function InputCard({ head, index }) {
+function InputCard({ name, index, value }) {
   const fileInputRef = useRef(null);
-  const [uploadedFile, setUploadedFile] = useState([]);
+
+  const dispatch = useDispatch();
 
   const onFileInputChange = (e) => {
     const { files } = e.target;
-    setUploadedFile(Object.values(files));
+    dispatch({
+      type: INPUT_ACTIONS.ADD_IMAGE,
+      payload: {
+        index,
+        value: Object.values(files).filter((ele) =>
+          ele.type.includes("image/")
+        ),
+      },
+    });
   };
-  const dispatch = useDispatch();
+
   return (
     <Paper
       elevation={3}
@@ -40,13 +48,13 @@ function InputCard({ head, index }) {
         }}
       >
         <TextField
-          value={head}
-          onChange={(e) =>
+          value={name}
+          onChange={(e) => {
             dispatch({
               type: INPUT_ACTIONS.CHANGE,
               payload: { index, value: e.target.value },
-            })
-          }
+            });
+          }}
         />
         <div>
           <Tooltip title="delete input data">
@@ -69,28 +77,73 @@ function InputCard({ head, index }) {
           alignItems: "flex-start",
         }}
       >
-        <Typography>Add Input Data:</Typography>
-        <FileDrop
-          onDrop={(files, event) => {
-            setUploadedFile((state) => [...state, ...files]);
-          }}
-          onTargetClick={() => {
-            fileInputRef.current.click();
-          }}
-        >
-          {" "}
-          <div>
-            <IconButton style={{ background: "#e7e7e7", padding: "1rem" }}>
-              <Upload style={{ color: "blue" }} />
-            </IconButton>
-            <Typography>
-              {uploadedFile
-                .slice(0, 10)
-                .map((ele) => ele.name)
-                .join(",")}
-            </Typography>
+        <Typography>Add Input Data:</Typography>{" "}
+        {/* {value.length > 0 && (
+          <Typography>{value.length} images selected</Typography>
+        )} */}
+
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <IconButton
+            onClick={() => fileInputRef.current.click()}
+            style={{
+              background: "#e7e7e7",
+              padding: "1rem",
+              width: "3.5rem",
+              height: "3.5rem",
+            }}
+          >
+            <Upload style={{ color: "blue" }} />
+          </IconButton>
+          <IconButton
+            style={{
+              background: "#e7e7e7",
+              padding: "1rem",
+              width: "3.5rem",
+              height: "3.5rem",
+            }}
+          >
+            <Camera style={{ color: "blue" }} />
+          </IconButton>
+          <div
+            style={{
+              display: "flex",
+              gap: ".5rem",
+              alignItems: "center",
+              overflowX: "auto",
+              maxWidth: "28rem",
+            }}
+          >
+            {value.map((image, i) => (
+              <div style={{ position: "relative" }} key={i}>
+                <IconButton
+                  onClick={() => {
+                    dispatch({
+                      type: INPUT_ACTIONS.DELETE_IMAGE,
+                      payload: { index, imgIndex: i },
+                    });
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    padding: 0,
+                  }}
+                >
+                  <Clear
+                    style={{
+                      width: "1.2rem",
+                    }}
+                  />
+                </IconButton>
+
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt={`uploadedImage${i}`}
+                  style={{ width: "3rem", height: "3rem", cursor: "pointer" }}
+                />
+              </div>
+            ))}
           </div>
-        </FileDrop>
+        </div>
       </div>{" "}
       <input
         ref={fileInputRef}
@@ -102,6 +155,7 @@ function InputCard({ head, index }) {
         }}
         multiple
         type="file"
+        accept="image/*"
       />
     </Paper>
   );

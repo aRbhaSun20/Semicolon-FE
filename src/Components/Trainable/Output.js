@@ -10,8 +10,15 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import Webcam from "react-webcam";
+
+const videoConstraints = {
+  width: 300,
+  height: 180,
+  facingMode: "user",
+};
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -23,8 +30,9 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 }));
 
 function Output() {
-  const inputRender = useSelector((state) => state.input);
+  const predictions = useSelector((state) => state.prediction);
   const [show, setShow] = useState(false);
+  const webcamRef = useRef(null);
   return (
     <div
       style={{
@@ -51,6 +59,13 @@ function Output() {
           <b>Output</b>
         </Typography>
         <Divider />
+        {false && <Webcam
+          height={100}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          width={200}
+          videoConstraints={videoConstraints}
+        />}
         <Button
           style={{
             display: "flex",
@@ -64,10 +79,10 @@ function Output() {
         </Button>
         {show && (
           <div style={{ display: "grid", gap: "1rem" }}>
-            {inputRender.map((ele, i) => (
+            {predictions.map((ele, i) => (
               <div key={i}>
-                <Typography>{ele.name}</Typography>
-                <LinearProgressWithLabel value={10} />
+                <Typography>{ele.className}</Typography>
+                <LinearProgressWithLabel value={ele.probability * 100} />
               </div>
             ))}
           </div>

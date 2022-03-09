@@ -23,7 +23,7 @@ function Input() {
       {inputRender.map((input, i) => (
         <InputCard
           key={i}
-          head={input.name}
+          {...input}
           index={i}
         />
       ))}

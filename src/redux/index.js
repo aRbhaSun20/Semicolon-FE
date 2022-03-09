@@ -8,7 +8,7 @@ const allReducers = combineReducers({
   user: UserReducers,
   model: ModelReducers,
   prediction: PredictionReducers,
-  inputs: InputReducers,
+  input: InputReducers,
 });
 
 const dataStore = createStore(
