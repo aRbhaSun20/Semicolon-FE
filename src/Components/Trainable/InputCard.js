@@ -6,24 +6,28 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { INPUT_ACTIONS } from "../../redux/InputsReducers";
+import AddImage from "./AddImage";
 
 function InputCard({ name, index, value }) {
   const fileInputRef = useRef(null);
+  const [openAdd, setOpenAdd] = useState(false);
 
   const dispatch = useDispatch();
 
   const onFileInputChange = (e) => {
     const { files } = e.target;
+    addImage(Object.values(files).filter((ele) => ele.type.includes("image/")));
+  };
+
+  const addImage = (data) => {
     dispatch({
       type: INPUT_ACTIONS.ADD_IMAGE,
       payload: {
         index,
-        value: Object.values(files).filter((ele) =>
-          ele.type.includes("image/")
-        ),
+        value: data,
       },
     });
   };
@@ -81,7 +85,6 @@ function InputCard({ name, index, value }) {
         {/* {value.length > 0 && (
           <Typography>{value.length} images selected</Typography>
         )} */}
-
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <IconButton
             onClick={() => fileInputRef.current.click()}
@@ -101,6 +104,7 @@ function InputCard({ name, index, value }) {
               width: "3.5rem",
               height: "3.5rem",
             }}
+            onClick={() => setOpenAdd(true)}
           >
             <Camera style={{ color: "blue" }} />
           </IconButton>
@@ -136,7 +140,7 @@ function InputCard({ name, index, value }) {
                 </IconButton>
 
                 <img
-                  src={URL.createObjectURL(image)}
+                  src={getImage(image)}
                   alt={`uploadedImage${i}`}
                   style={{ width: "3rem", height: "3rem", cursor: "pointer" }}
                 />
@@ -157,8 +161,17 @@ function InputCard({ name, index, value }) {
         type="file"
         accept="image/*"
       />
+      <AddImage addImage={addImage} open={openAdd} setOpen={setOpenAdd} />
     </Paper>
   );
 }
 
 export default InputCard;
+
+const getImage = (image) => {
+  try{
+   return URL.createObjectURL(image)
+  }catch{
+    return image
+  }
+}

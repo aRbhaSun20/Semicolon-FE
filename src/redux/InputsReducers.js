@@ -21,7 +21,7 @@ export const InputReducers = (
         ...InitialState,
         {
           name: `Input Key ${InitialState.length}`,
-          value: null,
+          value: [],
         },
       ];
     case INPUT_ACTIONS.DELETE:

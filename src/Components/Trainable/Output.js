@@ -72,6 +72,7 @@ function Output() {
             alignItems: "center",
             justifyContent: "space-between",
           }}
+          disabled={predictions.length ===0}
           onClick={() => setShow((state) => !state)}
         >
           <Typography>Input Keys</Typography>

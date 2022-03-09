@@ -58,6 +58,7 @@ function Training() {
       img.dispose();
       // const predictions = await model.classify(imageRef.current);
       console.log(predictions);
+      await model.save("localstorage://my-model")
       // dispatch({ type: PREDICTIONS_ACTIONS.LOAD, payload: predictions });
     }
   };

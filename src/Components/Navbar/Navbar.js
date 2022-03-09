@@ -21,6 +21,7 @@ function Navbar() {
           position: "fixed",
           height: "4rem",
           padding: "0 1rem",
+          zIndex: 1,
         }}
       >
         <Typography
