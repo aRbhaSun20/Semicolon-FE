@@ -1,16 +1,13 @@
 import { AddOutlined } from "@mui/icons-material";
 import { Typography } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { INPUT_ACTIONS } from "../../redux/InputsReducers";
 import InputCard from "./InputCard";
 
 function Input() {
-  const [inputRender, setInputRender] = useState([
-    {
-      name: "Input Key",
-      value: null,
-    },
-  ]);
-
+  const dispatch = useDispatch();
+  const inputRender = useSelector((state) => state.input);
   return (
     <div
       style={{
@@ -18,14 +15,15 @@ function Input() {
         display: "flex",
         flexDirection: "column",
         rowGap: "2rem",
-        paddingBottom: "2rem",alignItems:"center",justifyContent:"center"
+        paddingBottom: "2rem",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       {inputRender.map((input, i) => (
         <InputCard
           key={i}
           head={input.name}
-          setInputRender={setInputRender}
           index={i}
         />
       ))}
@@ -42,12 +40,7 @@ function Input() {
           cursor: "pointer",
         }}
         onClick={() => {
-          setInputRender((state) =>
-            state.concat({
-              name: `Input Key ${state.length}`,
-              value: null,
-            })
-          );
+          dispatch({ type: INPUT_ACTIONS.ADD });
         }}
       >
         <AddOutlined />

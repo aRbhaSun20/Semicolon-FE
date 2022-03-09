@@ -6,9 +6,20 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useRef, useState } from "react";
+import { FileDrop } from "react-file-drop";
+import { useDispatch } from "react-redux";
+import { INPUT_ACTIONS } from "../../redux/InputsReducers";
 
-function InputCard({ head, setInputRender, index }) {
+function InputCard({ head, index }) {
+  const fileInputRef = useRef(null);
+  const [uploadedFile, setUploadedFile] = useState([]);
+
+  const onFileInputChange = (e) => {
+    const { files } = e.target;
+    setUploadedFile(Object.values(files));
+  };
+  const dispatch = useDispatch();
   return (
     <Paper
       elevation={3}
@@ -30,27 +41,25 @@ function InputCard({ head, setInputRender, index }) {
       >
         <TextField
           value={head}
-          onChange={(e) => {
-            setInputRender((state) =>
-              state.map((ele, j) => (index === j ? e.target.value : ele))
-            );
-          }}
+          onChange={(e) =>
+            dispatch({
+              type: INPUT_ACTIONS.CHANGE,
+              payload: { index, value: e.target.value },
+            })
+          }
         />
         <div>
-          {/* <IconButton>
-          <DisabledByDefault />
-        </IconButton>{" "} */}
           <Tooltip title="delete input data">
             <IconButton
               onClick={() =>
-                setInputRender((state) => state.filter((ele, i) => i !== index))
+                dispatch({ type: INPUT_ACTIONS.DELETE, payload: { index } })
               }
             >
               <Delete style={{ color: "red" }} />
             </IconButton>
           </Tooltip>
         </div>
-      </div>
+      </div>{" "}
       <div
         style={{
           display: "flex",
@@ -61,10 +70,39 @@ function InputCard({ head, setInputRender, index }) {
         }}
       >
         <Typography>Add Input Data:</Typography>
-        <IconButton style={{ background: "#e7e7e7", padding: "1rem" }}>
-          <Upload style={{ color: "blue" }} />
-        </IconButton>
-      </div>
+        <FileDrop
+          onDrop={(files, event) => {
+            setUploadedFile((state) => [...state, ...files]);
+          }}
+          onTargetClick={() => {
+            fileInputRef.current.click();
+          }}
+        >
+          {" "}
+          <div>
+            <IconButton style={{ background: "#e7e7e7", padding: "1rem" }}>
+              <Upload style={{ color: "blue" }} />
+            </IconButton>
+            <Typography>
+              {uploadedFile
+                .slice(0, 10)
+                .map((ele) => ele.name)
+                .join(",")}
+            </Typography>
+          </div>
+        </FileDrop>
+      </div>{" "}
+      <input
+        ref={fileInputRef}
+        onChange={onFileInputChange}
+        style={{
+          filter: "alpha(opacity=0)",
+          opacity: 0,
+          visibility: "hidden",
+        }}
+        multiple
+        type="file"
+      />
     </Paper>
   );
 }

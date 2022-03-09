@@ -6,19 +6,30 @@ function Navbar() {
     <div
       style={{
         display: "flex",
-        padding: "1rem",
-        backgroundColor: "blue",
         height: "4rem",
         alignItems: "center",
         justifyContent: "space-between",
       }}
     >
-      <Typography
-        style={{ color: "white", fontSize: "1.5rem", fontWeight: "bold" }}
+      <div
+        style={{
+          display: "flex",
+          backgroundColor: "blue",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          position: "fixed",
+          height: "4rem",
+          padding: "0 1rem",
+        }}
       >
-        Semicolon-Team
-      </Typography>
-      <Avatar>A</Avatar>
+        <Typography
+          style={{ color: "white", fontSize: "1.5rem", fontWeight: "bold" }}
+        >
+          Semicolon-Team
+        </Typography>
+        <Avatar style={{ right: "2rem" }}>A</Avatar>
+      </div>
     </div>
   );
 }

@@ -15,8 +15,8 @@ function Trainable() {
       }}
     >
       <Input />
-      <Training/>
-      <Output/>
+      <Training />
+      <Output  />
     </div>
   );
 }

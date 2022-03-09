@@ -1,8 +1,14 @@
 import { combineReducers, createStore } from "redux";
+import { InputReducers } from "./InputsReducers";
+import { ModelReducers } from "./ModelReducers";
+import { PredictionReducers } from "./PredictionsReducers";
 import { UserReducers } from "./UserReducers";
 
 const allReducers = combineReducers({
   user: UserReducers,
+  model: ModelReducers,
+  prediction: PredictionReducers,
+  inputs: InputReducers,
 });
 
 const dataStore = createStore(
