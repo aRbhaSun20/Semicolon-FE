@@ -15,7 +15,6 @@ import { browser } from "@tensorflow/tfjs";
 import { load } from "@tensorflow-models/mobilenet";
 import { useDispatch, useSelector } from "react-redux";
 import { MODEL_ACTIONS } from "../../redux/ModelReducers";
-import { PREDICTIONS_ACTIONS } from "../../redux/PredictionsReducers";
 import PropTypes from "prop-types";
 
 function Training() {
