@@ -16,7 +16,6 @@ function InputCard({ name, index, value }) {
   const [openAdd, setOpenAdd] = useState(false);
 
   const dispatch = useDispatch();
-
   const onFileInputChange = (e) => {
     const { files } = e.target;
     addImage(Object.values(files).filter((ele) => ele.type.includes("image/")));
@@ -82,9 +81,9 @@ function InputCard({ name, index, value }) {
         }}
       >
         <Typography>Add Input Data:</Typography>{" "}
-        {/* {value.length > 0 && (
+        {value.length > 0 && (
           <Typography>{value.length} images selected</Typography>
-        )} */}
+        )}
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <IconButton
             onClick={() => fileInputRef.current.click()}
@@ -128,13 +127,14 @@ function InputCard({ name, index, value }) {
                   }}
                   style={{
                     position: "absolute",
-                    right: 0,
+                    left: 0,
                     padding: 0,
                   }}
                 >
                   <Clear
                     style={{
-                      width: "1.2rem",
+                      width: "1.5rem",
+                      color: "white",
                     }}
                   />
                 </IconButton>
@@ -169,9 +169,9 @@ function InputCard({ name, index, value }) {
 export default InputCard;
 
 const getImage = (image) => {
-  try{
-   return URL.createObjectURL(image)
-  }catch{
-    return image
+  try {
+    return URL.createObjectURL(image);
+  } catch {
+    return image;
   }
-}
+};

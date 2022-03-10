@@ -12,6 +12,10 @@ export const InputReducers = (
       name: "Input Key",
       value: [],
     },
+    {
+      name: "Input Key1",
+      value: [],
+    },
   ],
   actions
 ) => {

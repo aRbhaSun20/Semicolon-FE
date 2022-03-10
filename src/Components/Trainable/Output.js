@@ -6,13 +6,16 @@ import {
   LinearProgress,
   linearProgressClasses,
   Paper,
+  Switch,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import PropTypes from "prop-types";
-import React, { useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Webcam from "react-webcam";
+import { browser } from "@tensorflow/tfjs";
+import { PREDICTIONS_ACTIONS } from "../../redux/PredictionsReducers";
 
 const videoConstraints = {
   width: 300,
@@ -28,11 +31,41 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "light" ? "#1a90ff" : "#308fe8",
   },
 }));
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 function Output() {
   const predictions = useSelector((state) => state.prediction);
   const [show, setShow] = useState(false);
+  const [runPredictions, setRunPredictions] = useState(false);
   const webcamRef = useRef(null);
+  const { model, knnClassifier, complete } = useSelector(
+    (state) => state.model
+  );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handlePrediction();
+    }, 500);
+    if (!runPredictions) clearInterval(interval);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runPredictions]);
+
+  const handlePrediction = async () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    let imgBLob = new Image(100, 100);
+    imgBLob.src = imageSrc;
+    const imgage = await browser.fromPixelsAsync(imgBLob);
+    const activation1 = model.infer(imgage, "conv_preds");
+    const predictions = await knnClassifier.predictClass(activation1);
+    dispatch({
+      type: PREDICTIONS_ACTIONS.LOAD,
+      payload: predictions.confidences,
+    });
+    imgage.dispose();
+  };
+
   return (
     <div
       style={{
@@ -59,20 +92,28 @@ function Output() {
           <b>Output</b>
         </Typography>
         <Divider />
-        {false && <Webcam
-          height={100}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          width={200}
-          videoConstraints={videoConstraints}
-        />}
+        <Switch
+          {...label}
+          disabled={!complete}
+          checked={runPredictions}
+          onChange={() => setRunPredictions((state) => !state)}
+        />
+        {runPredictions && (
+          <Webcam
+            height={100}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            width={200}
+            videoConstraints={videoConstraints}
+          />
+        )}
         <Button
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
-          disabled={predictions.length ===0}
+          disabled={predictions.length === 0}
           onClick={() => setShow((state) => !state)}
         >
           <Typography>Input Keys</Typography>
@@ -80,10 +121,10 @@ function Output() {
         </Button>
         {show && (
           <div style={{ display: "grid", gap: "1rem" }}>
-            {predictions.map((ele, i) => (
+            {Object.keys(predictions).map((ele, i) => (
               <div key={i}>
-                <Typography>{ele.className}</Typography>
-                <LinearProgressWithLabel value={ele.probability * 100} />
+                <Typography>{ele}</Typography>
+                <LinearProgressWithLabel value={predictions[ele] * 100} />
               </div>
             ))}
           </div>
