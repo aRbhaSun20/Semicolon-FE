@@ -62,23 +62,21 @@ function Training() {
 
       setCurrentNum(0);
       const imageData = [];
-      for (let index = 0; index < inputValue.epoch; index++) {
-        input.forEach((inp) => {
-          inp.value.forEach((indiVal) => {
-            if (typeof indiVal === "string") {
-              let imgString = new Image();
-              imgString.src = indiVal;
-              imageData.push({ value: imgString, key: inp.name });
-            } else {
-              let imgBLob = new Image(100, 100);
-              imgBLob.src = URL.createObjectURL(indiVal);
-              imageData.push({ value: imgBLob, key: inp.name });
-            }
-          });
+      input.forEach((inp) => {
+        inp.value.forEach((indiVal) => {
+          if (typeof indiVal === "string") {
+            let imgString = new Image();
+            imgString.src = indiVal;
+            imageData.push({ value: imgString, key: inp.name });
+          } else {
+            let imgBLob = new Image(100, 100);
+            imgBLob.src = URL.createObjectURL(indiVal);
+            imageData.push({ value: imgBLob, key: inp.name });
+          }
         });
-      }
+      });
 
-      const shuffledInput = shuffleArray(imageData);
+      const shuffledInput = shuffleArray(imageData,inputValue.epoch);
       shuffledInput.forEach((shuffle) => {
         handleClassiification(shuffle.value, shuffle.key);
       });
@@ -151,7 +149,7 @@ function Training() {
         {training ? (
           <LinearProgressWithLabel
             variant="determinate"
-            value={divide(currentNum, getTotal(input) * inputValue.epoch)}
+            value={divide(currentNum, getTotal(input))}
           />
         ) : null}
         <Button
@@ -240,7 +238,15 @@ const validity = (num1, num2) => {
   return false;
 };
 
-const shuffleArray = (array) => {
+const shuffleArray = (array, num) => {
+  let newArr = array;
+  for (let index = 0; index < num; index++) {
+    newArr = shuffleTimes(newArr);
+  }
+  return newArr;
+};
+
+const shuffleTimes = (array) => {
   for (var i = array.length - 1; i > 0; i--) {
     // Generate random number
     var j = Math.floor(Math.random() * (i + 1));
